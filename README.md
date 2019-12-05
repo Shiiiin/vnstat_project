@@ -48,4 +48,4 @@ file.
 
 Bug reports, improvement ideas, feature requests and pull requests should be
 sent using the matching features on GitHub as those are harder to miss or
-forget.
+forget..
