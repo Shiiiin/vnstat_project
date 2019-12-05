@@ -39,7 +39,7 @@ PKG_CHECK_MODULES([CHECK], [check >= 0.9.6], [], [AC_MSG_NOTICE([testcases can n
 AM_CONDITIONAL([HAVE_CHECK], [test "$CHECK_LIBS"])
 
 # Checks for header files.
-AC_CHECK_HEADERS([fcntl.h inttypes.h locale.h stdint.h stdlib.h string.h sys/file.h sys/mount.h sys/param.h sys/socket.h sys/statvfs.h sys/time.h syslog.h unistd.h wchar.h])
+AC_CHECK_HEADERS([fcntl.h inttypes.h locale.h stdint.h stdlib.h string.h sys/file.h sys/mount.h sys/param.h sys/socket.h sys/statvfs.h sys/time.h syslog.h unistd.h wchar.h netinet/ip_icmp.h netinet/udp.h netinet/tcp.h netinet/ip.h arpa/inet.h])
 
 # Check if being cross-compiled
 AC_CANONICAL_BUILD
