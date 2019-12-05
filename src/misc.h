@@ -1,42 +1,17 @@
 #ifndef MISC_H
 #define MISC_H
 
-#define UNITPREFIXCOUNT 7
+#define UNITCOUNT 4
 
-typedef enum RequestType {
-	RT_Normal = 1,
-	RT_Estimate,
-	RT_ImageScale
-} RequestType;
-
-typedef enum ListType {
-	LT_None = 0,
-	LT_5min,
-	LT_Hour,
-	LT_Day,
-	LT_Month,
-	LT_Year,
-	LT_Top
-} ListType;
-
-int spacecheck(const char *path);
-void sighandler(int sig);
-uint64_t getbtime(void);
-char *getvalue(const uint64_t bytes, const int len, const RequestType type);
-int getunitspacing(const int len, const int index);
-char *gettrafficrate(const uint64_t bytes, const time_t interval, const int len);
-const char *getunitprefix(const int index);
-const char *getrateunitprefix(const int unitmode, const int index);
-uint64_t getunitdivisor(const int unitmode, const int index);
-int getunit(void);
-char *getratestring(const uint64_t rate, const int len, const int declen);
-int getratespacing(const int len, const int unitmode, const int unitindex);
-int getpadding(const int len, const char *str);
-void cursortocolumn(const int column);
-void cursorhide(void);
-void cursorshow(void);
-void eraseline(void);
-int validatedatetime(const char *str);
-int issametimeslot(const ListType listtype, const time_t entry, const time_t updated);
+int kerneltest(void);
+int spacecheck(char *path);
+void sighandler(int);
+int getbtime(void);
+void addtraffic(uint64_t *destmb, int *destkb, uint64_t srcmb, int srckb);
+char *getvalue(uint64_t mb, uint64_t kb, int len, int type);
+char *getrate(uint64_t mb, uint64_t kb, uint32_t interval, int len);
+uint64_t getscale(uint64_t kb);
+char *getunit(int index);
+char *getrateunit(int unit, int index);
 
 #endif

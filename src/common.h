@@ -1,7 +1,6 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -20,36 +19,15 @@
 #include <inttypes.h>
 #include <syslog.h>
 #include <sys/statvfs.h>
-#include <pwd.h>
-#include <grp.h>
-#include <libgen.h>
-#include <fcntl.h>
-#include <sys/time.h>
 
 #if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__APPLE__) || defined(__FreeBSD_kernel__)
 #include <sys/param.h>
 #include <sys/mount.h>
 #include <sys/socket.h>
 #include <sys/sysctl.h>
+#include <sys/time.h>
 #include <net/if.h>
 #include <ifaddrs.h>
-#define BSD_VNSTAT
-#endif
-
-/* OpenBSD and NetBSD don't support the ' character (decimal conversion) in printf formatting */
-#if !defined(__OpenBSD__) && !defined(__NetBSD__)
-#define DECCONV "'"
-#else
-#define DECCONV
-#endif
-
-/* used in debug to get function name */
-#if __STDC_VERSION__ < 199901L
-#if __GNUC__ >= 2
-#define __func__ __FUNCTION__
-#else
-#define __func__ "function"
-#endif
 #endif
 
 /*
@@ -60,31 +38,21 @@ and most can be changed later from the config file.
 */
 
 /* location of the database directory */
-#ifndef DATABASEDIR
 #if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__APPLE__)
 #define DATABASEDIR "/var/db/vnstat"
 #else
 #define DATABASEDIR "/var/lib/vnstat"
 #endif
-#endif
-
-/* database file name */
-#define DATABASEFILE "vnstat.db"
 
 /* on which day should months change */
 #define MONTHROTATE 1
-#define MONTHROTATEYEARS 0
 
 /* date output formats for -d, -m, -t and image header*/
-/* see 'man date' for control codes      1.x values     <1.8 values */
-#define DFORMAT "%Y-%m-%d"		 /* "%x"         "%d.%m." */
-#define MFORMAT "%Y-%m"			 /* "%b '%y"     "%b '%y" */
-#define TFORMAT "%Y-%m-%d"		 /* "%x"         "%d.%m.%y" */
-#define HFORMAT "%Y-%m-%d %H:%M" /* "%x %H:%M"   "%d.%m.%Y %H:%M" */
-
-#ifndef DATETIMEFORMAT
-#define DATETIMEFORMAT "%Y-%m-%d %H:%M:%S"
-#endif
+/* see 'man date' for control codes       <1.8 values */
+#define DFORMAT "%x"                    /* "%d.%m." */
+#define MFORMAT "%b '%y"                /* "%b '%y" */
+#define TFORMAT "%x"                    /* "%d.%m.%y" */
+#define HFORMAT "%x %H:%M"              /* "%d.%m.%Y %H:%M" */
 
 /* characters used for visuals */
 #define RXCHAR "%"
@@ -96,18 +64,17 @@ and most can be changed later from the config file.
 /* 0 = KiB/MiB/GiB/TiB, 1 = KB/MB/GB/TB */
 #define UNITMODE 0
 
-/* rate unit mode */
-/* 0 = Kibit/s..., 1 = kbit/s... */
-#define RATEUNITMODE 1
-
 /* output style */
 /* 0 = minimal/narrow, 1 = bars everywhere */
-/* 2 = same as 1 + rate in summary */
+/* 2 = same as 1 + rate in summary and weekly */
 /* 3 = rate everywhere */
 #define OSTYLE 3
 
 /* rate in vnstati summary output */
 #define SUMMARYRATE 1
+
+/* layout of summary output in vnstati */
+#define SUMMARYLAYOUT 1
 
 /* rate in vnstati hourly output */
 #define HOURLYRATE 1
@@ -116,38 +83,29 @@ and most can be changed later from the config file.
 /* 0 = bytes, 1 = bits */
 #define RATEUNIT 1
 
-/* number of decimals */
-#define DEFAULTDECIMALS 2
-#define HOURLYDECIMALS 1
-
-/* hourly section style */
-#define HOURLYSTYLE 2
-
 /* default interface */
-#ifndef DEFIFACE
-#define DEFIFACE ""
-#endif
+#define DEFIFACE "eth0"
 
 /* default locale */
 #define LOCALE "-"
 
-/* bandwidth detection, 0 = feature disabled */
-#define BWDETECT 1
-#define BWDETECTINTERVAL 5
-
 /* default maximum bandwidth (Mbit) for all interfaces */
 /* 0 = feature disabled */
-#define DEFMAXBW 1000
-
-/* maximum allowed config value for bandwidth */
-#define BWMAX 50000
+#define DEFMAXBW 100
 
 /* how many seconds should sampling take by default */
 #define DEFSAMPTIME 5
 
+/* maximum time (minutes) between two updates before traffic */
+/* for that period will be discarded */
+/* set to a little over one hour so that it doesn't break using */
+/* cron.hourly like Gentoo seems to do */
+#define MAXUPDATEINTERVAL 62
+
 /* default query mode */
-/* 0 = normal, 1 = days, 2 = months, 3 = top, 5 = short */
-/* 7 = hours, 8 = xml, 9 = one line, 10 = json */
+/* 0 = normal, 1 = days, 2 = months, 3 = top10 */
+/* 4 = dumpdb, 5 = short, 6 = weeks, 7 = hours */
+/* 8 = xml */
 #define DEFQMODE 0
 
 /* how much the boot time can variate between updates (seconds) */
@@ -156,89 +114,50 @@ and most can be changed later from the config file.
 /* check disk space by default */
 #define USESPACECHECK 1
 
-/* create trafficless entries by default */
-#define TRAFFICLESSENTRIES 1
+/* use file locking by default */
+#define USEFLOCK 1
 
-/* list outputs */
-#define LISTFIVEMINS 24
-#define LISTHOURS 24
-#define LISTDAYS 30
-#define LISTMONTHS 12
-#define LISTYEARS 0
-#define LISTTOP 10
-#define LISTJSONXML 0
+/* log trafficless days by default */
+#define TRAFLESSDAY 1
 
-/* data retention defaults */
-#define FIVEMINUTEHOURS 48
-#define HOURLYDAYS 4
-#define DAILYDAYS 62
-#define MONTHLYMONTHS 25
-#define YEARLYYEARS -1
-#define TOPDAYENTRIES 20
+/* how many times try file locking before giving up */
+/* each try takes about a second */
+#define LOCKTRYLIMIT 5
 
-/* assume that locale can be UTF-n when enabled */
-#define UTFLOCALE 1
+/* database version */
+/* 1 = 1.0, 2 = 1.1-1.2, 3 = 1.3- */
+#define DBVERSION 3
 
-/* 1 = 2.0 */
-#define SQLDBVERSION "1"
+/* version string */
+#define VNSTATVERSION "1.11"
 
 /* xml format version */
-/* 1 = 1.7-1.16, 2 = 2.0 */
-#define XMLVERSION 2
-
-/* json format version */
-/* 1 = 1.13-1.16, 2 = 2.0 */
-#define JSONVERSION 2
-
-/* json format version, -tr */
-/* 1 = 1.18- */
-#define JSONVERSION_TR 1
-
-/* json format version, --live */
-/* 1 = 1.18- */
-#define JSONVERSION_LIVE 1
+/* 1 = 1.7- */
+#define XMLVERSION 1
 
 /* --oneline format version */
 #define ONELINEVERSION 1
 
 /* integer limits */
-#define MAX32 4294967295ULL
-#define MAX64 18446744073709551615ULL
+#define FP32 4294967295ULL
+#define FP64 18446744073709551615ULL
 
 /* sampletime in seconds for live traffic */
 /* don't use values below 2 */
 #define LIVETIME 2
 
 /* /proc/net/dev */
-#ifndef PROCNETDEV
 #define PROCNETDEV "/proc/net/dev"
-#endif
-
-/* /sys/class/net */
-#ifndef SYSCLASSNET
-#define SYSCLASSNET "/sys/class/net"
-#endif
 
 /* daemon defaults */
-#define UPDATEINTERVAL 20
-#define TIMESYNCWAIT 5
+#define UPDATEINTERVAL 30
 #define POLLINTERVAL 5
 #define SAVEINTERVAL 5
 #define OFFSAVEINTERVAL 30
 #define SAVESTATUS 1
 #define USELOGGING 2
-#define CREATEDIRS 1
-#define UPDATEFILEOWNER 1
-#define LOGFILE "/var/log/vnstat/vnstat.log"
-#define PIDFILE "/var/run/vnstat/vnstat.pid"
-#define IS64BIT -2
-#define WALDB 0
-#define WALDBCHECKPOINTINTERVALMINS 240
-#define SLOWDBWARNLIMIT 4.0 // needs to be less than DBREADTIMEOUTSECS
-#define DBSYNCHRONOUS -1
-
-/* database read timeout */
-#define DBREADTIMEOUTSECS 5
+#define LOGFILE "/var/log/vnstat.log"
+#define PIDFILE "/var/run/vnstat.pid"
 
 /* no transparency by default */
 #define TRANSBG 0
@@ -257,11 +176,6 @@ and most can be changed later from the config file.
 #define CTX "606060"
 #define CTXD "-"
 
-/* number of retries after non-fatal database errors, */
-/* will result in given number + 1 tries in total before exit, */
-/* a full disk (as reported by sqlite) will no cause retries or exit */
-#define DBRETRYLIMIT 5
-
 /* internal config structure */
 typedef struct {
 	char dformat[64], mformat[64], tformat[64], hformat[64];
@@ -271,42 +185,65 @@ typedef struct {
 	char rxchar[2], txchar[2], rxhourchar[2], txhourchar[2];
 	char cbg[8], cedge[8], cheader[8], cheadertitle[8], cheaderdate[8], ctext[8];
 	char cline[8], clinel[8], cvnstat[8], crx[8], crxd[8], ctx[8], ctxd[8];
-	int32_t unitmode, rateunitmode, rateunit, bvar, qmode, sampletime, hourlyrate, summaryrate;
-	int32_t monthrotate, monthrotateyears, maxbw, spacecheck, trafficlessentries, transbg, ostyle;
-	int32_t defaultdecimals, hourlydecimals, hourlystyle, is64bit, waldb, dbsynchronous;
-	char cfgfile[512], logfile[512], pidfile[512];
-	char daemonuser[33], daemongroup[33];
-	int32_t timesyncwait, updateinterval, pollinterval, saveinterval, offsaveinterval, savestatus;
-	int32_t uselogging, createdirs, updatefileowner, bwdetection, bwdetectioninterval, utflocale;
-	int32_t fiveminutehours, hourlydays, dailydays, monthlymonths, yearlyyears, topdayentries;
-	int32_t listfivemins, listhours, listdays, listmonths, listyears, listtop, listjsonxml;
+	short unit, ostyle, rateunit, bvar, qmode, sampletime, hourlyrate, summaryrate;
+	short monthrotate, maxbw, flock, spacecheck, traflessday, transbg, slayout;
+	char logfile[512], pidfile[512];
+	short updateinterval, pollinterval, saveinterval, offsaveinterval, savestatus, uselogging;
 } CFG;
 
 /* internal interface information structure */
 typedef struct {
 	char name[32];
-	short filled;
-	short is64bit;
+	int filled;
 	uint64_t rx;
 	uint64_t tx;
 	uint64_t rxp;
 	uint64_t txp;
-	time_t timestamp;
 } IFINFO;
+
+typedef struct {
+	time_t date;
+	uint64_t rx, tx;
+} HOUR;
+
+typedef struct {
+	time_t date;
+	uint64_t rx, tx;
+	int rxk, txk;
+	int used;
+} DAY;
+
+typedef struct {
+	time_t month;
+	uint64_t rx, tx;
+	int rxk, txk;
+	int used;
+} MONTH;
+
+/* db structure */
+typedef struct {
+	int version;
+	char interface[32];
+	char nick[32];
+	int active;
+	uint64_t totalrx, totaltx, currx, curtx;
+	int totalrxk, totaltxk;
+	time_t lastupdated, created;
+	DAY day[30];
+	MONTH month[12];
+	DAY top10[10];
+	HOUR hour[24];
+	uint64_t btime;
+} DATA;
 
 typedef struct ibwnode {
 	char interface[32];
-	uint32_t limit;
-	uint32_t fallback;
-	short retries;
-	time_t detected;
+	int limit;
 	struct ibwnode *next;
 } ibwnode;
 
 typedef enum PrintType {
 	PT_Info = 0,
-	PT_Infoless,
-	PT_Warning,
 	PT_Error,
 	PT_Config,
 	PT_Multiline,
@@ -314,29 +251,20 @@ typedef enum PrintType {
 } PrintType;
 
 /* common functions */
-int printe(const PrintType type);
-int logprint(const PrintType type);
-int verifylogaccess(void);
-int dmonth(const int month);
-int isleapyear(const int year);
-time_t mosecs(time_t month, time_t updated);
-uint64_t countercalc(const uint64_t *a, const uint64_t *b, const short is64bit);
-char *strncpy_nt(char *dest, const char *src, size_t n);
-int isnumeric(const char *s);
-void panicexit(const char *sourcefile, const int sourceline) __attribute__((noreturn));
-char *getversion(void);
-double timeused(const char *func, const int reset);
-void timeused_debug(const char *func, const int reset);
+int printe(PrintType type);
+int logprint(PrintType type);
+int dmonth(int month);
+uint32_t mosecs(void);
 
 /* global variables */
-extern CFG cfg;
-extern IFINFO ifinfo;
-extern char errorstring[1024];
-extern ibwnode *ifacebw;
-extern int debug;
-extern int noexit; /* = running as daemon if 2 */
-extern int intsignal;
-extern int pidfile;
-extern int disableprints;
+DATA data;
+CFG cfg;
+IFINFO ifinfo;
+char errorstring[512];
+ibwnode *ifacebw;
+int debug;
+int noexit;      /* = running as daemon if 2 */
+int intsignal;
+int pidfile;
 
 #endif

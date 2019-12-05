@@ -1,38 +1,56 @@
 #ifndef DBACCESS_H
 #define DBACCESS_H
 
-/* legacy database version */
-/* import is supported only from version 3 */
-/* 1 = 1.0, 2 = 1.1-1.2, 3 = 1.3-1.8 */
-#define LEGACYDBVERSION 3
+int readdb(const char *iface, const char *dirname);
+void initdb(void);
+int writedb(const char *iface, const char *dirname, int newdb);
+int backupdb(const char *current, const char *backup);
+int convertdb(FILE *db);
+int lockdb(int fd, int dbwrite);
+int checkdb(const char *iface, const char *dirname);
+int removedb(const char *iface, const char *dirname);
+void cleanhours(void);
+void rotatedays(void);
+void rotatemonths(void);
 
-/* all structs below are used for supporting data import */
-/* from the legacy database format => don't modify  */
 
-#if defined(__clang__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wpadded"
-#endif
+/* version 1.0 database format aka db v1 */
+typedef struct {
+	char date[11];
+	uint64_t rx, tx;
+} DAY10;
+
+typedef struct {
+	char month[4];
+	uint64_t rx, tx;
+} MONTH10;
+
+typedef struct {
+	int version;
+	char interface[32];
+	uint64_t totalrx, totaltx, currx, curtx;
+	int totalrxk, totaltxk;
+	time_t lastupdated, created;
+	DAY10 day[30];
+	MONTH10 month[12];
+	DAY10 top10[10];
+	uint64_t btime;
+} DATA10;
+
+
+/* version 1.1-1.2 database format aka db v2 */
 typedef struct {
 	time_t date;
 	uint64_t rx, tx;
-} HOUR;
-
-typedef struct {
-	time_t date;
-	uint64_t rx, tx;
-	int rxk, txk;
 	int used;
-} DAY;
+} DAY12;
 
 typedef struct {
 	time_t month;
 	uint64_t rx, tx;
-	int rxk, txk;
 	int used;
-} MONTH;
+} MONTH12;
 
-/* legacy database structure */
 typedef struct {
 	int version;
 	char interface[32];
@@ -41,20 +59,10 @@ typedef struct {
 	uint64_t totalrx, totaltx, currx, curtx;
 	int totalrxk, totaltxk;
 	time_t lastupdated, created;
-	DAY day[30];
-	MONTH month[12];
-	DAY top10[10];
-	HOUR hour[24];
+	DAY12 day[30];
+	MONTH12 month[12];
+	DAY12 top10[10];
 	uint64_t btime;
-} DATA;
-#if defined(__clang__)
-#pragma clang diagnostic pop
-#endif
-
-int importlegacydb(const char *iface, const char *dirname);
-int insertlegacydata(DATA *data, const char *iface);
-int readdb(DATA *data, const char *iface, const char *dirname, const int force);
-void initdb(DATA *data);
-int validatedb(DATA *data);
+} DATA12;
 
 #endif

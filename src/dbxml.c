@@ -1,128 +1,94 @@
 #include "common.h"
-#include "dbsql.h"
 #include "dbxml.h"
 
-void showxml(const char *interface, const char mode, const char *databegin, const char *dataend)
+void showxml(void)
 {
-	interfaceinfo info;
+	int i;
 
-	timeused_debug(__func__, 1);
+	printf(" <interface id=\"%s\">\n", data.interface);
 
-	if (!db_getinterfacecountbyname(interface)) {
-		return;
-	}
-
-	if (!db_getinterfaceinfo(interface, &info)) {
-		return;
-	}
-
-	printf(" <interface name=\"%s\">\n", info.name);
-
-	printf("  <name>%s</name>\n", info.name);
-	printf("  <alias>%s</alias>\n", info.alias);
+	printf("  <id>%s</id>\n", data.interface);
+	printf("  <nick>%s</nick>\n", data.nick);
 
 	printf("  <created>");
-	xmldate(&info.created, 1);
+	xmldate(&data.created, 1);
 	printf("</created>\n");
 	printf("  <updated>");
-	xmldate(&info.updated, 2);
+	xmldate(&data.lastupdated, 2);
 	printf("</updated>\n");
 
 	printf("  <traffic>\n");
-	printf("   <total><rx>%" PRIu64 "</rx><tx>%" PRIu64 "</tx></total>\n", info.rxtotal, info.txtotal);
+	printf("   <total><rx>%"PRIu64"</rx><tx>%"PRIu64"</tx></total>\n", (data.totalrx*1024)+data.totalrxk, (data.totaltx*1024)+data.totaltxk);
 
-	switch (mode) {
-		case 'd':
-			xmldump(&info, "day", 1, databegin, dataend);
-			break;
-		case 'm':
-			xmldump(&info, "month", 3, databegin, dataend);
-			break;
-		case 't':
-			xmldump(&info, "top", 1, databegin, dataend);
-			break;
-		case 'h':
-			xmldump(&info, "hour", 2, databegin, dataend);
-			break;
-		case 'y':
-			xmldump(&info, "year", 4, databegin, dataend);
-			break;
-		case 'f':
-			xmldump(&info, "fiveminute", 2, databegin, dataend);
-			break;
-		case 'a':
-		default:
-			xmldump(&info, "fiveminute", 2, databegin, dataend);
-			xmldump(&info, "hour", 2, databegin, dataend);
-			xmldump(&info, "day", 1, databegin, dataend);
-			xmldump(&info, "month", 3, databegin, dataend);
-			xmldump(&info, "year", 2, databegin, dataend);
-			xmldump(&info, "top", 1, databegin, dataend);
-			break;
-	}
+	printf("   <days>\n");
+	for (i=0;i<=29;i++) {
+		if (data.day[i].used) {
+			printf("    <day id=\"%d\">", i);
+			xmldate(&data.day[i].date, 1);
+			printf("<rx>%"PRIu64"</rx><tx>%"PRIu64"</tx></day>\n", (data.day[i].rx*1024)+data.day[i].rxk, (data.day[i].tx*1024)+data.day[i].txk);
+		}
+	}	
+	printf("   </days>\n");
+
+	printf("   <months>\n");
+	for (i=0;i<=11;i++) {
+		if (data.month[i].used) {
+			printf("    <month id=\"%d\">", i);
+			xmldate(&data.month[i].month, 3);
+			printf("<rx>%"PRIu64"</rx><tx>%"PRIu64"</tx></month>\n", (data.month[i].rx*1024)+data.month[i].rxk, (data.month[i].tx*1024)+data.month[i].txk);
+		}
+	}	
+	printf("   </months>\n");
+
+	printf("   <tops>\n");
+	for (i=0;i<=9;i++) {
+		if (data.top10[i].used) {
+			printf("    <top id=\"%d\">", i);
+			xmldate(&data.top10[i].date, 2);
+			printf("<rx>%"PRIu64"</rx><tx>%"PRIu64"</tx></top>\n", (data.top10[i].rx*1024)+data.top10[i].rxk, (data.top10[i].tx*1024)+data.top10[i].txk);
+		}
+	}	
+	printf("   </tops>\n");
+
+	printf("   <hours>\n");
+	for (i=0;i<=23;i++) {
+		if (data.hour[i].date!=0) {
+			printf("    <hour id=\"%d\">", i);
+			xmldate(&data.hour[i].date, 1);
+			printf("<rx>%"PRIu64"</rx><tx>%"PRIu64"</tx></hour>\n", data.hour[i].rx, data.hour[i].tx);
+		}
+	}	
+	printf("   </hours>\n");
 
 	printf("  </traffic>\n");
 	printf(" </interface>\n");
 
-	timeused_debug(__func__, 0);
 }
 
-void xmldump(const interfaceinfo *interface, const char *tablename, const int datetype, const char *databegin, const char *dataend)
-{
-	dbdatalist *datalist = NULL, *datalist_i = NULL;
-	dbdatalistinfo datainfo;
-
-	if (!db_getdata_range(&datalist, &datainfo, interface->name, tablename, (uint32_t)cfg.listjsonxml, databegin, dataend)) {
-		printf("Error: Failed to fetch %s data.\n", tablename);
-		return;
-	}
-
-	printf("   <%ss>\n", tablename);
-	datalist_i = datalist;
-	while (datalist_i != NULL) {
-		printf("    <%s id=\"%" PRId64 "\">", tablename, datalist_i->rowid);
-		xmldate(&datalist_i->timestamp, datetype);
-		printf("<rx>%" PRIu64 "</rx><tx>%" PRIu64 "</tx></%s>\n", datalist_i->rx, datalist_i->tx, tablename);
-		datalist_i = datalist_i->next;
-	}
-	dbdatalistfree(&datalist);
-	printf("   </%ss>\n", tablename);
-}
-
-void xmldate(const time_t *date, const int type)
+void xmldate(time_t *date, int type)
 {
 	struct tm *d;
+	char *buffer;
+	char *type1 = "<date><year>%Y</year><month>%m</month><day>%d</day></date>";
+	char *type2 = "<date><year>%Y</year><month>%m</month><day>%d</day></date><time><hour>%H</hour><minute>%M</minute></time>";
+	char *type3 = "<date><year>%Y</year><month>%m</month></date>";
 
 	d = localtime(date);
 
-	switch (type) {
-		case 1:
-			printf("<date><year>%d</year><month>%02d</month><day>%02d</day></date>",
-				   1900 + d->tm_year, 1 + d->tm_mon, d->tm_mday);
-			break;
-		case 2:
-			printf("<date><year>%d</year><month>%02d</month><day>%02d</day></date><time><hour>%02d</hour><minute>%02d</minute></time>",
-				   1900 + d->tm_year, 1 + d->tm_mon, d->tm_mday, d->tm_hour, d->tm_min);
-			break;
-		case 3:
-			printf("<date><year>%d</year><month>%02d</month></date>",
-				   1900 + d->tm_year, 1 + d->tm_mon);
-			break;
-		case 4:
-			printf("<date><year>%d</year></date>",
-				   1900 + d->tm_year);
-			break;
-		default:
-			break;
+	if (type == 1) {
+		buffer = malloc(strlen(type1)+3);
+		strftime(buffer, strlen(type1)+3, type1, d);
+		printf("%s", buffer);
+		free(buffer);
+	} else if (type == 2) {
+		buffer = malloc(strlen(type2)+3);
+		strftime(buffer, strlen(type2)+3, type2, d);
+		printf("%s", buffer);
+		free(buffer);	
+	} else if (type == 3) {
+		buffer = malloc(strlen(type3)+3);
+		strftime(buffer, strlen(type3)+3, type3, d);
+		printf("%s", buffer);
+		free(buffer);
 	}
-}
-
-void xmlheader(void)
-{
-	printf("<vnstat version=\"%s\" xmlversion=\"%d\">\n", getversion(), XMLVERSION);
-}
-
-void xmlfooter(void)
-{
-	printf("</vnstat>\n");
 }
