@@ -683,7 +683,7 @@ vnstati_SOURCES = src/vnstati.c src/vnstati.h \
   src/misc.c src/misc.h \
   src/fs.c src/fs.h \
   src/id.c src/id.h \
-  src/cfg.c src/cfg.h
+  src/cfg.c src/cfg.h \
   src/sniffing.c src/sniffing.h
 
 #check_vnstat_CFLAGS =   \
@@ -1001,6 +1001,7 @@ src/fs.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/id.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/traffic.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/sniffing.$(OBJEXT) : src/$(ad__dirstamp) src/$(DEPDIR)/$(am_dirstamp)
 
 vnstat$(EXEEXT): $(vnstat_OBJECTS) $(vnstat_DEPENDENCIES) $(EXTRA_vnstat_DEPENDENCIES) 
 	@rm -f vnstat$(EXEEXT)
@@ -1074,6 +1075,7 @@ include src/$(DEPDIR)/vnstat.Po
 include src/$(DEPDIR)/vnstat_func.Po
 include src/$(DEPDIR)/vnstatd.Po
 include src/$(DEPDIR)/vnstati.Po
+include src/$(DEPDIR)/sniffing.Po
 include tests/$(DEPDIR)/check_vnstat-cli_tests.Po
 include tests/$(DEPDIR)/check_vnstat-common_tests.Po
 include tests/$(DEPDIR)/check_vnstat-config_tests.Po
@@ -1553,6 +1555,14 @@ src/check_vnstat-traffic.obj: src/traffic.c
 #	$(AM_V_CC)source='src/traffic.c' object='src/check_vnstat-traffic.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
 #	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_vnstat_CFLAGS) $(CFLAGS) -c -o src/check_vnstat-traffic.obj `if test -f 'src/traffic.c'; then $(CYGPATH_W) 'src/traffic.c'; else $(CYGPATH_W) '$(srcdir)/src/traffic.c'; fi`
+
+src/check_vnstat-sniffing.obj: src/sniffing.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_vnstat_CFLAGS) $(CFLAGS) -MT src/check_vnstat-sniffing.obj -MD -MP -MF src/$(DEPDIR)/check_vnstat-sniffing.Tpo -c -o src/check_vnstat-sniffing.obj `if test -f 'src/sniffing.c'; then $(CYGPATH_W) 'src/sniffing.c'; else $(CYGPATH_W) '$(srcdir)/src/sniffing.c'; fi`
+	$(AM_V_at)$(am__mv) src/$(DEPDIR)/check_vnstat-sniffing.Tpo src/$(DEPDIR)/check_vnstat-sniffing.Po
+#	$(AM_V_CC)source='src/sniffing.c' object='src/check_vnstat-sniffing.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_vnstat_CFLAGS) $(CFLAGS) -c -o src/check_vnstat-sniffing.obj `if test -f 'src/sniffing.c'; then $(CYGPATH_W) 'src/sniffing.c'; else $(CYGPATH_W) '$(srcdir)/src/sniffing.c'; fi`
+	
 
 tests/check_vnstat-image_tests.o: tests/image_tests.c
 	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(check_vnstat_CFLAGS) $(CFLAGS) -MT tests/check_vnstat-image_tests.o -MD -MP -MF tests/$(DEPDIR)/check_vnstat-image_tests.Tpo -c -o tests/check_vnstat-image_tests.o `test -f 'tests/image_tests.c' || echo '$(srcdir)/'`tests/image_tests.c
