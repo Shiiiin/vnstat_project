@@ -25,6 +25,7 @@ vnStat - Copyright (c) 2002-11 Teemu Toivola <tst@iki.fi>
 #include "misc.h"
 #include "cfg.h"
 #include "vnstat.h"
+#include "cpu.h"
 
 int main(int argc, char *argv[]) {
 
@@ -152,8 +153,9 @@ int main(int argc, char *argv[]) {
 			printf("         -?,  --help           short help\n");
 			printf("         -v,  --version        show version\n");
 			printf("         -tr, --traffic        calculate traffic\n");
-			printf("         -ru, --rateunit       swap configured rate unit\n");
-			printf("         -l,  --live           show transfer rate in real time\n\n");
+			printf("         -ru, --rateunit       swap configured rate unit\n\n");
+			printf("         -l,  --live           show transfer rate in real time (Made by Shin Gyeongik\n");
+			printf("         -c,  --cpu            show the resource of CPU (Made by KO Kyoungkyu)\n");
 
 			printf("See also \"--longhelp\" for complete options list and \"man vnstat\".\n");
 
@@ -341,6 +343,10 @@ int main(int argc, char *argv[]) {
 		} else if ((strcmp(argv[currentarg],"-r")==0) || (strcmp(argv[currentarg],"--reset")==0)) {
 			reset=1;
 			query=0;
+			
+		} else if ((strcmp(argv[currentarg],"-c")==0) || (strcmp(argv[currentarg],"--cpu")==0)) {
+			cpu_info();
+			return 0;
 		} else if (strcmp(argv[currentarg],"--sync")==0) {
 			sync=1;
 			query=0;			
