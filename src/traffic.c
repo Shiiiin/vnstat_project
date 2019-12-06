@@ -121,36 +121,10 @@ void livetrafficmeter(char iface[32], int mode)
 	}
 
 	/* connect to socket */
-
-	//sniffing_init(buffer3);
-
-	/*sharedmemory
-	int shmid;
-	int num = 0;
-	SHM_INFOS *shm_info = NULL;
-
-	void *shared_memory = (void *) 0;
-
-	shmid = shmget((key_t)3836, sizeof(SHM_INFOS)*1024, 0666|IPC_CREAT);
-
-	if (shmid == -1)
-	{
-		perror("shmget failed : ");
-		exit(0);
-	}
-	shared_memory = shmat(shmid, (void *)0, 0666|IPC_CREAT);
-	if(shared_memory == (void*)-1)
-	{
-		perror("shmat attach is failed : ");
-		exit(0);
-	}
-	shm_info = (SHM_INFOS *)shared_memory;
-	*/
-
-
-	//////////////////////여기서 부터
 	pid_t pid;
 	void* shmem = create_shared_memory(256);
+
+	logfile=fopen("log.txt","w");
 
 	pid = fork();
         //printf("pid = [%d]\n", getpid());
@@ -194,10 +168,9 @@ void livetrafficmeter(char iface[32], int mode)
 
                 close(sock_raw);
   		
-		// 프로세스 모두 종료한 뒤에 여기 실행됨!!  확인함!!!
+		// 프로세스 모두 종료한 뒤에 자식 종료 !! 여기 실행됨!!  확인함!!!
  } else {
 
-                logfile=fopen("log.txt","w");
                 if(logfile==NULL){
                         printf("Unable to create file.");
                         fflush(stdout);
@@ -289,13 +262,11 @@ void livetrafficmeter(char iface[32], int mode)
 				snprintf(buffer2, 128, "       tx: %s  %s", getrate(0, txc, LIVETIME, 12), getvalue(0, rintf(txtotal/(float)1024), 1, 1));
 			}
 		}
-		//printf("%s\n", shm_info[0].str_ip);
-		//snprintf(buffer3, 256, "%s", shm_info[0].str_ip);
 
 		snprintf(buffer3, 256, "%s", shmem);
 
 		strncat(buffer, buffer2, 127);
-		strncat(buffer, buffer3, 127);
+		strncat(buffer, buffer3, 256);
 
 		if (len>1 && cfg.ostyle!=4) {
 			if (debug) {
@@ -354,7 +325,6 @@ void livetrafficmeter(char iface[32], int mode)
 			printf("  time               %7.2f minutes\n", timespent/(float)60);
 		}
 
-
 		printf("\n");
 	}
 
@@ -387,7 +357,7 @@ void ProcessPacket(char* buffer, int size, void* shmem)
         {
                 case 1:  //ICMP Protocol
                         ++icmp;
-                        //print_icmp_packet(buffer,size);
+                        print_icmp_packet(buffer,size);
                         break;
 
                 case 2:  //IGMP Protocol
@@ -395,21 +365,18 @@ void ProcessPacket(char* buffer, int size, void* shmem)
                         break;
                 case 6:  //TCP Protocol
                         ++tcp;
-                        //print_tcp_packet(buffer , size);
+                        print_tcp_packet(buffer , size);
                         break;
 
                 case 17: //UDP Protocol
                         ++udp;
-                        //print_udp_packet(buffer , size);
+                        print_udp_packet(buffer , size);
                         break;
 
                 default: //Some Other Protocol like ARP etc.
                         ++others;
                         break;
         }
-        //snprintf(shm_info.str_ip, sizeof(shm_info.str_ip), "\n    TCP : %d   UDP : %d   ICMP : %d   IGMP : %d   Others : %d   Total : %d\n    Received a packet from %s",
-        // tcp,udp,icmp,igmp,others,total, print_source_ip(buffer, size));
-
 
         char message[256];
 	sprintf(message,  "\n    TCP : %d   UDP : %d   ICMP : %d   IGMP : %d   Others : %d   Total : %d\n    Received a packet from %s",tcp,udp,icmp,igmp,others,total, print_source_ip(buffer, size));
