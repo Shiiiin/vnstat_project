@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -O2
 LDLIBS = -lm
-OBJS = vnstat.o ifinfo.o dbxml.o dbshow.o dbaccess.o dbmerge.o common.o misc.o cfg.o traffic.o sniffing.o
+OBJS = vnstat.o ifinfo.o dbxml.o dbshow.o dbaccess.o dbmerge.o common.o misc.o cfg.o traffic.o
 DOBJS = vnstatd.o ifinfo.o dbaccess.o dbcache.o common.o misc.o cfg.o
 IOBJS = vnstati.o dbaccess.o dbmerge.o common.o misc.o cfg.o
 
@@ -30,7 +30,6 @@ dbcache.o: dbcache.c dbcache.h dbaccess.h common.h ifinfo.h
 common.o: common.c common.h
 misc.o: misc.c misc.h common.h
 cfg.o: cfg.c cfg.h common.h
-sniffing.o: sniffing.h
 
 clean:
 	rm -f *.o *~ core *.i vnstat vnstatd vnstati
