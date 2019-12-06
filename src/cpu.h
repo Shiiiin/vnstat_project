@@ -52,3 +52,34 @@ CPU_P *cpu_dfget(CPU_P *CP)
     rewind(CP->fp);
     return NULL;
 }
+
+int dfclose(CPU_P *CP)
+{
+    fclose(CP->fp);
+}
+
+void cpu_info(void)
+{
+    struct utsname un;
+    CPU_P *CP;
+    char pbuf[1024];
+
+    if(uname(&un) < 0) {
+            fprintf(stderr, "uname() error.\n");
+            return 1;
+    }
+
+    if ((CP=cpu_dfopen()) == NULL)
+    {
+        perror("error");
+        return 1;
+    }
+
+    fprintf(stdout, "총 CPU 개수 : %d \n", get_nprocs_conf());
+    printf("=============================================== [ CPU 정보 ] ================================================ \n\n" );
+    while(cpu_dfget(CP))
+    {
+        printf("%-10s %10llu %10llu %10llu %10llu %10llu %10llu %10llu " , CP->cpuname, CP->cpu_user, CP->cpu_nice, CP->cpu_system, CP->cpu_idle, CP->cpu_wait, CP->cpu_hard_interrupt, CP->cpu_soft_interrupt );
+        printf(", Usage: %10.2f %% \n" , (float)(CP->cpu_user + CP->cpu_nice + CP->cpu_system) / (CP->cpu_user + CP->cpu_nice + CP->cpu_system + CP->cpu_idle) * 100 );
+    }
+}
