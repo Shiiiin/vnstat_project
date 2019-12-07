@@ -76,7 +76,7 @@ void cpu_info(void)
     }
 
     fprintf(stdout, "총 CPU 개수  : %d \n", get_nprocs_conf());
-    printf("=============================================== [ CPU 정보¸ ] ================================================ \n\n" );
+    printf("=============================================== [ CPU 정보 ] ================================================ \n\n" );
     while(cpu_dfget(CP))
     {
         printf("%-10s %10llu %10llu %10llu %10llu %10llu %10llu %10llu " , CP->cpuname, CP->cpu_user, CP->cpu_nice, CP->cpu_system, CP->cpu_idle, CP->cpu_wait, CP->cpu_hard_interrupt, CP->cpu_soft_interrupt );
