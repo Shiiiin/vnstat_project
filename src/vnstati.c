@@ -16,6 +16,7 @@ vnStat image output - Copyright (c) 2007-11 Teemu Toivola <tst@iki.fi>
 */
 
 #include "common.h"
+#include "image.h"
 #include "cfg.h"
 #include "dbaccess.h"
 #include "dbmerge.h"
@@ -23,6 +24,7 @@ vnStat image output - Copyright (c) 2007-11 Teemu Toivola <tst@iki.fi>
 
 int main(int argc, char *argv[])
 {
+	FILE *pngout;
 	int currentarg, cache=0, help=0, showheader=1, showedge=1;
 	char interface[32], dirname[512], filename[512], cfgfile[512];
 	struct stat filestat;
@@ -279,8 +281,71 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	/* open file */	
+	if (filename[0]!='-') {
+		if ((pngout = fopen(filename, "w"))==NULL) {
+			printf("Error: Opening file \"%s\" for output failed.\n", filename);
+			return 1;
+		}
+	} else {
+		/* output to stdout */
+		if ((pngout = fdopen(1, "w"))==NULL) {
+			printf("Error: Opening stdout for output failed.\n");
+			return 1;
+		}
+	}
+
 	if (debug)
 		printf("Qmode: %d\n", cfg.qmode);
+
+	/* draw image */
+	switch (cfg.qmode) {
+		case 1:
+			drawdaily(showheader, showedge);
+			break;
+		case 2:
+			drawmonthly(showheader, showedge);
+			break;
+		case 3:
+			drawtop(showheader, showedge);
+			break;
+		case 5:
+			if (cfg.slayout) {
+				drawsummary(0, showheader, showedge, 0);
+			} else {
+				drawoldsummary(0, showheader, showedge, 0);
+			}
+			break;
+		case 51:
+			if (cfg.slayout) {
+				drawsummary(1, showheader, showedge, cfg.hourlyrate);
+			} else {
+				drawoldsummary(1, showheader, showedge, cfg.hourlyrate);
+			}
+			break;
+		case 52:
+			if (cfg.slayout) {
+				drawsummary(2, showheader, showedge, cfg.hourlyrate);
+			} else {
+				drawoldsummary(2, showheader, showedge, cfg.hourlyrate);
+			}
+			break;
+		case 7:
+			drawhourly(showheader, showedge, cfg.hourlyrate);
+			break;
+		default:
+			break;
+	}
+
+	/* enable background transparency if needed */
+	if (cfg.transbg) {
+		gdImageColorTransparent(im, cbackground);
+	}
+
+	/* write image */
+	gdImagePng(im, pngout);
+	fclose(pngout);
+	gdImageDestroy(im);
 
 	/* cleanup */
 	ibwflush();
