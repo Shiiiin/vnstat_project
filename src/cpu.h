@@ -75,8 +75,8 @@ void cpu_info(void)
         return 1;
     }
 
-    fprintf(stdout, "CPU °³¼ö : %d \n", get_nprocs_conf());
-    printf("=============================================== [ CPU Á¤º¸ ] ================================================ \n\n" );
+    fprintf(stdout, "ì´ CPU ê°œìˆ˜  : %d \n", get_nprocs_conf());
+    printf("=============================================== [ CPU ì •ë³´Â¸ ] ================================================ \n\n" );
     while(cpu_dfget(CP))
     {
         printf("%-10s %10llu %10llu %10llu %10llu %10llu %10llu %10llu " , CP->cpuname, CP->cpu_user, CP->cpu_nice, CP->cpu_system, CP->cpu_idle, CP->cpu_wait, CP->cpu_hard_interrupt, CP->cpu_soft_interrupt );
