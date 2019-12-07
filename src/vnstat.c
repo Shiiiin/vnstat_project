@@ -356,6 +356,12 @@ int main(int argc, char *argv[]) {
 		} else if (strcmp(argv[currentarg],"--sync")==0) {
 			sync=1;
 			query=0;			
+		} else if ((strcmp(argv[currentarg],"-z")==0) || (strcmp(argv[currentarg],"--zombie")==0)) {
+			zombie_num();
+			return 0;
+		} else if ((strcmp(argv[currentarg],"-zk")==0) || (strcmp(argv[currentarg],"--zombie-kill")==0)) {
+			zombie_kill();
+			return 0;
 		} else {
 			printf("Unknown parameter \"%s\". Use --help for help.\n",argv[currentarg]);
 			return 1;
