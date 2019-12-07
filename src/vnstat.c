@@ -28,6 +28,7 @@ vnStat - Copyright (c) 2002-11 Teemu Toivola <tst@iki.fi>
 #include "cpu.h"
 #include "zombie_kill.h"
 #include "zombie_num.h"
+#include "server_monitor.h"
 
 int main(int argc, char *argv[]) {
 
@@ -96,7 +97,7 @@ int main(int argc, char *argv[]) {
 
 			printf("   Update:\n");
 			printf("         -u, --update          update database\n");
-			printf("         -r, --reset           reset interface counters\n");
+			printf("         -re, --reset           reset interface counters\n");
 			printf("         --sync                sync interface counters\n");
 			printf("         --enable              enable interface\n");
 			printf("         --disable             disable interface\n");
@@ -156,7 +157,7 @@ int main(int argc, char *argv[]) {
 			printf("         -v,  --version        show version\n");
 			printf("         -tr, --traffic        calculate traffic\n");
 			printf("         -ru, --rateunit       swap configured rate unit\n\n");
-			printf("         -l,  --live           show transfer rate in real time (Made by Shin gyeongik\n");
+			printf("         -l,  --live           show transfer rate in real time (Made by Shin gyeongik)\n");
 			printf("         -z,  --zombie         check the number of zombie process (Made by Park Hyunsik)\n");
 			printf("         -zk, --zombie-kill    kill the zombie process (Made by Park HyunSik)\n");
 			printf("         -r,  --resource       show the resource of Server (Made by KO Kyoungkyu)\n");
@@ -346,7 +347,7 @@ int main(int argc, char *argv[]) {
 		} else if ((strcmp(argv[currentarg],"-v")==0) || (strcmp(argv[currentarg],"--version")==0)) {
 			printf("vnStat %s by Teemu Toivola <tst at iki dot fi>\n", VNSTATVERSION);
 			return 0;
-		} else if ((strcmp(argv[currentarg],"-r")==0) || (strcmp(argv[currentarg],"--reset")==0)) {
+		} else if ((strcmp(argv[currentarg],"-re")==0) || (strcmp(argv[currentarg],"--reset")==0)) {
 			reset=1;
 			query=0;
 		} else if ((strcmp(argv[currentarg],"-c")==0) || (strcmp(argv[currentarg],"--cpu")==0)) {
@@ -361,6 +362,9 @@ int main(int argc, char *argv[]) {
 		} else if ((strcmp(argv[currentarg],"-zk")==0) || (strcmp(argv[currentarg],"--zombie-kill")==0)) {
 			zombie_kill();
 			return 0;
+		} else if ((strcmp(argv[currentarg],"-r")==0) || (strcmp(argv[currentarg],"--resource")==0)) {
+			server_monitor();
+			return 0;	
 		} else {
 			printf("Unknown parameter \"%s\". Use --help for help.\n",argv[currentarg]);
 			return 1;
