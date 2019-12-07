@@ -32,6 +32,8 @@ void zombie_kill(void)
 		return -1;
 	}
 
+	printf("Searching for Zombie Processes...\n\n");
+
 	// 디렉토리 정보를 하나씩 읽으면서 반복합니다.
 	while ((entry = readdir(directory)) != NULL) {
 		
@@ -94,7 +96,7 @@ void zombie_kill(void)
 
 	closedir(directory);
 
-	printf("\n%d zombies detected... !!\n", zombie_count);
+	printf("%d Zombie Processes were detected... !!\n\n", zombie_count);
 
 	return 0;
 }
