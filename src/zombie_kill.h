@@ -7,6 +7,7 @@
 #define DECIMAL (10)
 #define BUFFER_SIZE (1024)
 
+/* 좀비 프로세스를 탐색하고 해당 좀비의 부모 프로세스를 KILL 합니다 */
 void zombie_kill(void)
 {
 	DIR* directory;
