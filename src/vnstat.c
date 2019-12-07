@@ -27,6 +27,9 @@ vnStat - Copyright (c) 2002-11 Teemu Toivola <tst@iki.fi>
 #include "vnstat.h"
 #include "cpu.h"
 
+#include "zombie_kill.h"
+#include "zombie_num.h"
+
 int main(int argc, char *argv[]) {
 
 	int i;
