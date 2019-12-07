@@ -26,7 +26,6 @@ vnStat - Copyright (c) 2002-11 Teemu Toivola <tst@iki.fi>
 #include "cfg.h"
 #include "vnstat.h"
 #include "cpu.h"
-
 #include "zombie_kill.h"
 #include "zombie_num.h"
 
