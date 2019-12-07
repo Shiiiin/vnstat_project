@@ -25,6 +25,7 @@ vnStat - Copyright (c) 2002-11 Teemu Toivola <tst@iki.fi>
 #include "misc.h"
 #include "cfg.h"
 #include "vnstat.h"
+#include "cph.h"
 
 int main(int argc, char *argv[]) {
 
@@ -341,6 +342,9 @@ int main(int argc, char *argv[]) {
 		} else if ((strcmp(argv[currentarg],"-r")==0) || (strcmp(argv[currentarg],"--reset")==0)) {
 			reset=1;
 			query=0;
+		} else if ((strcmp(argv[currentarg],"-c")==0) || (strcmp(argv[currentarg],"--cpu")==0)) {
+			cpu_info();
+			return 0;	
 		} else if (strcmp(argv[currentarg],"--sync")==0) {
 			sync=1;
 			query=0;			
