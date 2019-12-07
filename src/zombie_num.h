@@ -7,6 +7,7 @@
 #define DECIMAL (10)
 #define BUFFER_SIZE (1024)
 
+/* 프로세스 정보를 수집해 좀비 프로세스 수를 파악합니다. */
 void zombie_num(void)
 {
         DIR* directory;
