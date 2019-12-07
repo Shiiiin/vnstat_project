@@ -17,7 +17,8 @@ void server_monitor(void)
                 return 1;
         }
 
-        fprintf(stdout, "============= [ 서버 자원 ] ============\n"
+        fprintf(stdout,
+                        "============= [ 서버 자원 ] ============\n"
                         "노드명 : %s\n"
                         "시스템 이름 : %s\n"
                         "커널 버전 : %s\n"

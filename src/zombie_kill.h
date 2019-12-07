@@ -23,7 +23,7 @@ void zombie_kill(void)
 	char* process_state;
 	char* process_ppid;
 
-	size_t zombie_count = 0;	
+	size_t zombie_count = 0;
 
 	/* "/proc" 디렉토리를 엽니다. 이 디렉토리에는 현재 실행중인 프로세스들에 대한 정보가 모두 들어있습니다. */
 	/* 실패하면 NULL 을 반환하기 때문에 예외처리 했습니다. */
@@ -37,7 +37,7 @@ void zombie_kill(void)
 
 	/* 디렉토리 정보를 하나씩 읽으면서 반복합니다. */
 	while ((entry = readdir(directory)) != NULL) {
-		
+
 		/* "/proc" 에는 숫자로 된 데이터와 문자로 된 데이터들이 혼재하는데, 숫자로 된 데이터들이 프로세스들의 pid 를 의미합니다. */
 		/* 따라서 안에 들어있는 내용들 중 우리가 관심있는 pid 만 선별하기 위한 작업입니다. */
 		/* strtol 함수는 string to long 즉, 문자열을 long 타입 정수로 변환해줍니다. */
@@ -82,7 +82,7 @@ void zombie_kill(void)
 
 		/* 그리고 state 가 Z인 좀비 프로세스들을 찾아냅니다. */
 		if (!strcmp(process_state, "Z")) {
-			printf("%s is Zombie\n", process_name);	
+			printf("%s is Zombie\n", process_name);
 			++zombie_count;
 
 			/* 찾아낸 좀비의 부모 프로세스에게 SIGNAL 을 보냅니다. 여기서는 KILL 시그널을 보냈어요. (9번 시그널) */
@@ -90,7 +90,7 @@ void zombie_kill(void)
 			if (!kill(atoi(process_ppid), SIGKILL)) {
 				printf("K I L L !!\n");
 			}
-		}					
+		}
 
 		fclose(file);
 	}

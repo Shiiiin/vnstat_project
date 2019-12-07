@@ -51,7 +51,7 @@ void trafficmeter(char iface[], int sampletime)
 	fflush(stdout);
 	if ((sampletime/3)*3!=sampletime) {
 		sleep(sampletime-((sampletime/3)*3));
-	}	
+	}
 
 	len=strlen(buffer)+3;
 
@@ -89,9 +89,9 @@ void livetrafficmeter(char iface[32], int mode)
 	float rxmin, txmin, rxmax, txmax, rxc, txc;
 	int i, len=0;
 	char buffer[1024], buffer2[256];
-	char buffer3[512]; // buffer for the number of protocol type 
+	char buffer3[512]; // buffer for the number of protocol type
 	IFINFO previnfo;
-	
+
 	printf("Monitoring %s...    (press CTRL-C to stop)\n\n", iface);
 	if (cfg.ostyle != 4) {
 		printf("   getting traffic...");
@@ -160,14 +160,14 @@ void livetrafficmeter(char iface[32], int mode)
                         {
                                 perror("Recvfrom error , failed to get packets\n");
                         }
-			
+
                         //Now process the packet
-                        ProcessPacket(buffer , data_size, shmem);			
+                        ProcessPacket(buffer , data_size, shmem);
 
                 }while(kill(ppid, 0) == 0);
 
                 close(sock_raw);
-  		
+
 		// 프로세스 모두 종료한 뒤에 자식 종료 !! 여기 실행됨!!  확인함!!!
  } else {
 
@@ -214,7 +214,7 @@ void livetrafficmeter(char iface[32], int mode)
 		rxc = rintf(rx/(float)1024);
 		txc = rintf(tx/(float)1024);
 		rxpc = rxp/LIVETIME;
-		txpc = txp/LIVETIME;		
+		txpc = txp/LIVETIME;
 
 		/* update min & max */
 		if ((rxmin==-1.0) || (rxmin>rxc)) {
@@ -247,8 +247,8 @@ void livetrafficmeter(char iface[32], int mode)
 		if (cfg.ostyle != 0) {
 			if (mode == 0) {
 				snprintf(buffer, 128, "\r    rx: %s %5"PRIu64" p/s", getrate(0, rxc, LIVETIME, 15), (uint64_t)rxpc);
-				snprintf(buffer2, 128, "          tx: %s %5"PRIu64" p/s", getrate(0, txc, LIVETIME, 15), (uint64_t)txpc);				
-							
+				snprintf(buffer2, 128, "          tx: %s %5"PRIu64" p/s", getrate(0, txc, LIVETIME, 15), (uint64_t)txpc);
+
 			} else {
 				snprintf(buffer, 128, "\r    rx: %s   %s", getrate(0, rxc, LIVETIME, 13), getvalue(0, rintf(rxtotal/(float)1024), 1, 1));
 				snprintf(buffer2, 128, "             tx: %s   %s", getrate(0, txc, LIVETIME, 13), getvalue(0, rintf(txtotal/(float)1024), 1, 1));
@@ -284,7 +284,7 @@ void livetrafficmeter(char iface[32], int mode)
 			fflush(stdout);
 		} else {
 			printf("%s", buffer);
-			fflush(stdout);	
+			fflush(stdout);
 		}
 		len=strlen(buffer);
 

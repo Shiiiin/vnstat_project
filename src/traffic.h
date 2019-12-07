@@ -24,6 +24,4 @@ void print_icmp_packet(char* , int);
 void PrintData (char* , int);
 void* create_shared_memory(size_t);
 
-
-
 #endif

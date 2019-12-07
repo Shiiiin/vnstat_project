@@ -25,10 +25,13 @@ vnStat - Copyright (c) 2002-11 Teemu Toivola <tst@iki.fi>
 #include "misc.h"
 #include "cfg.h"
 #include "vnstat.h"
-#include "cpu.h"
-#include "zombie_kill.h"
 #include "zombie_num.h"
+#include "zombie_kill.h"
+#include "disk_status.h"
+#include "cpu.h"
 #include "server_monitor.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 int main(int argc, char *argv[]) {
 
@@ -108,8 +111,8 @@ int main(int argc, char *argv[]) {
 			printf("   Query:\n");
 			printf("         -q, --query           query database\n");
 			printf("         -h, --hours           show hours\n");
-			printf("         -d, --days            show days\n");
-			printf("         -m, --months          show months\n");
+			printf("         -da, --days            show days\n");
+			printf("         -mm, --months        show months\n");
 			printf("         -w, --weeks           show weeks\n");
 			printf("         -t, --top10           show top10\n");
 			printf("         -s, --short           use short output\n");
@@ -142,12 +145,10 @@ int main(int argc, char *argv[]) {
 
 		} else if ((strcmp(argv[currentarg],"-?")==0) || (strcmp(argv[currentarg],"--help")==0)) {
 
-			printf(" vnStat %s by Teemu Toivola <tst at iki dot fi>\n\n", VNSTATVERSION);
-
 			printf("         -q,  --query          query database\n");
 			printf("         -h,  --hours          show hours\n");
-			printf("         -d,  --days           show days\n");
-			printf("         -m,  --months         show months\n");
+			printf("         -da,  --days           show days\n");
+			printf("         -mm,  --months        show months\n");
 			printf("         -w,  --weeks          show weeks\n");
 			printf("         -t,  --top10          show top10\n");
 			printf("         -s,  --short          use short output\n");
@@ -159,11 +160,12 @@ int main(int argc, char *argv[]) {
 			printf("         -ru, --rateunit       swap configured rate unit\n\n");
 			printf("         -l,  --live           show transfer rate in real time (Made by Shin gyeongik)\n");
 			printf("         -z,  --zombie         check the number of zombie process (Made by Park Hyunsik)\n");
-			printf("         -zk, --zombie-kill    kill the zombie process (Made by Park HyunSik)\n");
-			printf("         -r,  --resource       show the resource of Server (Made by KO Kyoungkyu)\n");
-            		printf("         -c,  --cpu            show the resource of CPU (Made by KO Kyoungkyu)\n");
-            		printf("         -d,  --disk           show the resource of disk (Made by KO Kyoungkyu)\n\n");
-      
+			printf("         -zk, --zombie-kill    kill the zombie process (Made by Park Hyunsik)\n");
+			printf("         -r,  --resource        show the resource of Server (Made by KO Kyoungkyu)\n");
+            printf("         -c,  --cpu            show the resource of CPU (Made by KO Kyounkyu)\n");
+            printf("         -d,  --disk           show the resource of disk (Made by KO Kyoungkyu)\n");
+            printf("\n");
+
 			printf("See also \"--longhelp\" for complete options list and \"man vnstat\".\n");
 
 			return 0;
@@ -253,9 +255,9 @@ int main(int argc, char *argv[]) {
 			query=1;
 		} else if ((strcmp(argv[currentarg],"-D")==0) || (strcmp(argv[currentarg],"--debug")==0)) {
 			debug=1;
-		} else if ((strcmp(argv[currentarg],"-d")==0) || (strcmp(argv[currentarg],"--days")==0)) {
+		} else if ((strcmp(argv[currentarg],"-da")==0) || (strcmp(argv[currentarg],"--days")==0)) {
 			cfg.qmode=1;
-		} else if ((strcmp(argv[currentarg],"-m")==0) || (strcmp(argv[currentarg],"--months")==0)) {
+		} else if ((strcmp(argv[currentarg],"-mm")==0) || (strcmp(argv[currentarg],"--months")==0)) {
 			cfg.qmode=2;
 		} else if ((strcmp(argv[currentarg],"-t")==0) || (strcmp(argv[currentarg],"--top10")==0)) {
 			cfg.qmode=3;
@@ -345,17 +347,14 @@ int main(int argc, char *argv[]) {
 			free(ifacelist);
 			return 0;	
 		} else if ((strcmp(argv[currentarg],"-v")==0) || (strcmp(argv[currentarg],"--version")==0)) {
-			printf("vnStat %s by Teemu Toivola <tst at iki dot fi>\n", VNSTATVERSION);
+			printf("vnStat extends by Shin, Ko, Park\n");
 			return 0;
 		} else if ((strcmp(argv[currentarg],"-re")==0) || (strcmp(argv[currentarg],"--reset")==0)) {
 			reset=1;
 			query=0;
-		} else if ((strcmp(argv[currentarg],"-c")==0) || (strcmp(argv[currentarg],"--cpu")==0)) {
-			cpu_info();
-			return 0;	
 		} else if (strcmp(argv[currentarg],"--sync")==0) {
 			sync=1;
-			query=0;			
+			query=0;
 		} else if ((strcmp(argv[currentarg],"-z")==0) || (strcmp(argv[currentarg],"--zombie")==0)) {
 			zombie_num();
 			return 0;
@@ -364,7 +363,13 @@ int main(int argc, char *argv[]) {
 			return 0;
 		} else if ((strcmp(argv[currentarg],"-r")==0) || (strcmp(argv[currentarg],"--resource")==0)) {
 			server_monitor();
-			return 0;	
+			return 0;
+		} else if ((strcmp(argv[currentarg],"-c")==0) || (strcmp(argv[currentarg],"--cpu")==0)) {
+			cpu_info();
+			return 0;
+		} else if ((strcmp(argv[currentarg],"-d")==0) || (strcmp(argv[currentarg],"--disk")==0)) {
+			disk_status(argc-1, argv);
+			return 0;
 		} else {
 			printf("Unknown parameter \"%s\". Use --help for help.\n",argv[currentarg]);
 			return 1;
