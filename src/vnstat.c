@@ -25,7 +25,7 @@ vnStat - Copyright (c) 2002-11 Teemu Toivola <tst@iki.fi>
 #include "misc.h"
 #include "cfg.h"
 #include "vnstat.h"
-#include "cph.h"
+#include "cpu.h"
 
 int main(int argc, char *argv[]) {
 
