@@ -30,6 +30,8 @@ void zombie_num(void)
                 return -1;
         }
 
+	printf("Searching for Zombie Processes...\n\n");
+
         while ((entry = readdir(directory)) != NULL) {
                 pid = strtol(entry->d_name, &endptr, DECIMAL);
                 if (*endptr != '\0') {
@@ -63,7 +65,7 @@ void zombie_num(void)
 
         closedir(directory);
 
-        printf("%d zombies detected... !!\n", zombie_count);
+        printf("%d Zombie Processes were detected... !!\n\n", zombie_count);
 
         return 0;
 }
